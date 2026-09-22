@@ -73,25 +73,21 @@ dp = Dispatcher(storage=MemoryStorage())
 
 
 # =========================================================
-# ДАННЫЕ
+# ПРОДУКЦИЯ
 # =========================================================
 
 PRODUCTS = {
-    "apples": {
-        "name": "🍎 Яблоки",
-        "description": "Свежие яблоки из сада.",
+    "apples_pears": {
+        "name": "🍎 Яблоки и груши",
+        "description": "Свежие яблоки и груши из сада.",
     },
-    "fresh": {
-        "name": "🫐 Свежая ягода и фрукты",
-        "description": "Свежая сезонная продукция.",
+    "fresh_raspberry": {
+        "name": "❤️ Свежая малина",
+        "description": "Свежая сезонная малина.",
     },
-    "frozen": {
-        "name": "❄️ Замороженная ягода",
-        "description": "Замороженная ягода.",
-    },
-    "honey": {
-        "name": "🍯 Мёд",
-        "description": "Натуральный мёд.",
+    "frozen_raspberry": {
+        "name": "❄️ Замороженная малина",
+        "description": "Замороженная малина.",
     },
     "jam": {
         "name": "🥞 Варенье",
@@ -99,6 +95,10 @@ PRODUCTS = {
     },
 }
 
+
+# =========================================================
+# УСЛУГИ
+# =========================================================
 
 SERVICES = {
     "excursion": {
@@ -164,12 +164,13 @@ def products_menu():
     return ReplyKeyboardMarkup(
         keyboard=[
             [
-                KeyboardButton(text="🍎 Яблоки"),
-                KeyboardButton(text="🫐 Свежая ягода и фрукты"),
+                KeyboardButton(text="🍎 Яблоки и груши"),
             ],
             [
-                KeyboardButton(text="❄️ Замороженная ягода"),
-                KeyboardButton(text="🍯 Мёд"),
+                KeyboardButton(text="❤️ Свежая малина"),
+            ],
+            [
+                KeyboardButton(text="❄️ Замороженная малина"),
             ],
             [
                 KeyboardButton(text="🥞 Варенье"),
@@ -186,19 +187,29 @@ def services_menu():
     return ReplyKeyboardMarkup(
         keyboard=[
             [
-                KeyboardButton(text="🌳 Прогулки и экскурсии"),
+                KeyboardButton(
+                    text="🌳 Прогулки и экскурсии"
+                ),
             ],
             [
-                KeyboardButton(text="🐴 Лошади и карета"),
+                KeyboardButton(
+                    text="🐴 Лошади и карета"
+                ),
             ],
             [
-                KeyboardButton(text="🎣 Рыбалка"),
+                KeyboardButton(
+                    text="🎣 Рыбалка"
+                ),
             ],
             [
-                KeyboardButton(text="🏡 Аренда дома"),
+                KeyboardButton(
+                    text="🏡 Аренда дома"
+                ),
             ],
             [
-                KeyboardButton(text="⬅️ Назад"),
+                KeyboardButton(
+                    text="⬅️ Назад"
+                ),
             ],
         ],
         resize_keyboard=True,
@@ -410,7 +421,10 @@ async def send_to_admins(text: str) -> bool:
 # =========================================================
 
 @dp.message(CommandStart())
-async def start(message: Message, state: FSMContext):
+async def start(
+    message: Message,
+    state: FSMContext
+):
     await state.clear()
 
     await message.answer(
@@ -493,15 +507,16 @@ async def back_to_main(
 # =========================================================
 
 PRODUCT_BUTTONS = {
-    "🍎 Яблоки": "apples",
-    "🫐 Свежая ягода и фрукты": "fresh",
-    "❄️ Замороженная ягода": "frozen",
-    "🍯 Мёд": "honey",
+    "🍎 Яблоки и груши": "apples_pears",
+    "❤️ Свежая малина": "fresh_raspberry",
+    "❄️ Замороженная малина": "frozen_raspberry",
     "🥞 Варенье": "jam",
 }
 
 
-@dp.message(F.text.in_(PRODUCT_BUTTONS.keys()))
+@dp.message(
+    F.text.in_(PRODUCT_BUTTONS.keys())
+)
 async def select_product(
     message: Message,
     state: FSMContext
@@ -514,7 +529,9 @@ async def select_product(
         product_name=product["name"],
     )
 
-    await state.set_state(OrderState.date)
+    await state.set_state(
+        OrderState.date
+    )
 
     await message.answer(
         f"{product['name']}\n\n"
@@ -541,8 +558,13 @@ async def product_date(
         )
         return
 
-    await state.update_data(date=value)
-    await state.set_state(OrderState.quantity)
+    await state.update_data(
+        date=value
+    )
+
+    await state.set_state(
+        OrderState.quantity
+    )
 
     await message.answer(
         "⚖️ Укажите количество <b>только в килограммах</b>.\n\n"
@@ -558,13 +580,16 @@ async def product_quantity(
     message: Message,
     state: FSMContext
 ):
-    quantity = normalize_quantity(message.text)
+    quantity = normalize_quantity(
+        message.text
+    )
 
     if quantity is None:
         await message.answer(
             "❌ Не понял количество.\n\n"
             "Укажите количество только в килограммах.\n"
-            "Например: <code>5 кг</code> или <code>5,5 кг</code>."
+            "Например: <code>5 кг</code> или "
+            "<code>5,5 кг</code>."
         )
         return
 
@@ -572,7 +597,9 @@ async def product_quantity(
         quantity=quantity
     )
 
-    await state.set_state(OrderState.name)
+    await state.set_state(
+        OrderState.name
+    )
 
     await message.answer(
         "👤 Как вас зовут?"
@@ -596,7 +623,9 @@ async def product_name(
         name=name
     )
 
-    await state.set_state(OrderState.phone)
+    await state.set_state(
+        OrderState.phone
+    )
 
     await message.answer(
         "📱 Оставьте номер телефона:",
@@ -618,7 +647,9 @@ async def product_phone_contact(
         phone=phone
     )
 
-    await state.set_state(OrderState.comment)
+    await state.set_state(
+        OrderState.comment
+    )
 
     await message.answer(
         "💬 Есть ли комментарий к заказу?\n\n"
@@ -644,7 +675,9 @@ async def product_phone_text(
         phone=phone
     )
 
-    await state.set_state(OrderState.comment)
+    await state.set_state(
+        OrderState.comment
+    )
 
     await message.answer(
         "💬 Есть ли комментарий к заказу?\n\n"
@@ -698,7 +731,9 @@ SERVICE_BUTTONS = {
 }
 
 
-@dp.message(F.text.in_(SERVICE_BUTTONS.keys()))
+@dp.message(
+    F.text.in_(SERVICE_BUTTONS.keys())
+)
 async def select_service(
     message: Message,
     state: FSMContext
@@ -711,7 +746,10 @@ async def select_service(
         service_name=service["name"],
     )
 
-    # Для дома сначала показываем правила
+    # -----------------------------------------------------
+    # ДОМ — СНАЧАЛА ПРАВИЛА
+    # -----------------------------------------------------
+
     if service_key == "house":
 
         await message.answer(
@@ -750,7 +788,9 @@ async def select_service(
         return
 
     # Остальные услуги
-    await state.set_state(BookingState.date)
+    await state.set_state(
+        BookingState.date
+    )
 
     await message.answer(
         f"{service['name']}\n\n"
@@ -774,14 +814,19 @@ async def house_rules_continue(
 ):
     data = await state.get_data()
 
-    if not data or data.get("service_key") != "house":
+    if (
+        not data
+        or data.get("service_key") != "house"
+    ):
         await callback.answer(
             "Начните бронирование заново.",
             show_alert=True,
         )
         return
 
-    await state.set_state(BookingState.date)
+    await state.set_state(
+        BookingState.date
+    )
 
     try:
         await callback.message.edit_reply_markup(
@@ -816,19 +861,22 @@ async def booking_date(
     value = message.text.strip()
 
     # -----------------------------------------------------
-    # АРЕНДА ДОМА — ДИАПАЗОН ДАТ
+    # ДОМ — ДИАПАЗОН ДАТ
     # -----------------------------------------------------
 
     if data.get("service_key") == "house":
 
-        parsed = parse_house_date_range(value)
+        parsed = parse_house_date_range(
+            value
+        )
 
         if parsed is None:
             await message.answer(
                 "❌ Неверный формат периода.\n\n"
                 "Введите дату заезда и выезда так:\n"
                 "<code>13.01.2026-14.01.2026</code>\n\n"
-                "Дата выезда должна быть позже даты заезда."
+                "Дата выезда должна быть позже "
+                "даты заезда."
             )
             return
 
@@ -844,7 +892,7 @@ async def booking_date(
         )
 
         await message.answer(
-            f"✅ Период выбран:\n\n"
+            f"✅ <b>Период выбран:</b>\n\n"
             f"<b>Заезд:</b> {parsed['check_in']}\n"
             f"<b>Выезд:</b> {parsed['check_out']}\n"
             f"<b>Ночей:</b> {parsed['nights']}\n\n"
@@ -926,7 +974,10 @@ async def booking_guests(
 ):
     value = message.text.strip()
 
-    if not value.isdigit() or int(value) <= 0:
+    if (
+        not value.isdigit()
+        or int(value) <= 0
+    ):
         await message.answer(
             "❌ Укажите количество гостей числом.\n"
             "Например: <code>4</code>"
@@ -935,10 +986,13 @@ async def booking_guests(
 
     guests = int(value)
 
-    # Максимум для дома — 6 человек
     data = await state.get_data()
 
-    if data.get("service_key") == "house" and guests > 6:
+    # Максимум для дома — 6 человек
+    if (
+        data.get("service_key") == "house"
+        and guests > 6
+    ):
         await message.answer(
             "❌ Для аренды дома максимальная "
             "вместимость — 6 человек.\n\n"
@@ -979,7 +1033,9 @@ async def booking_guests(
 # БАНЯ / ЧАН / ГРИЛЬ
 # =========================================================
 
-@dp.callback_query(F.data == "bath_yes")
+@dp.callback_query(
+    F.data == "bath_yes"
+)
 async def bath_yes(
     callback: CallbackQuery,
     state: FSMContext
@@ -1015,7 +1071,9 @@ async def bath_yes(
     )
 
 
-@dp.callback_query(F.data == "bath_no")
+@dp.callback_query(
+    F.data == "bath_no"
+)
 async def bath_no(
     callback: CallbackQuery,
     state: FSMContext
@@ -1348,8 +1406,7 @@ async def confirm_request(
         admin_text
     )
 
-    # Очищаем состояние,
-    # чтобы нельзя было отправить повторно
+    # Очищаем состояние
     await state.clear()
 
     if success:
@@ -1572,10 +1629,8 @@ async def main():
         "======================================"
     )
 
-    # Проверяем связь с админом
     await check_admin_connection()
 
-    # Запускаем бота
     await dp.start_polling(bot)
 
 
