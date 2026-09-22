@@ -164,19 +164,29 @@ def products_menu():
     return ReplyKeyboardMarkup(
         keyboard=[
             [
-                KeyboardButton(text="🍎 Яблоки и груши"),
+                KeyboardButton(
+                    text="🍎 Яблоки и груши"
+                ),
             ],
             [
-                KeyboardButton(text="❤️ Свежая малина"),
+                KeyboardButton(
+                    text="❤️ Свежая малина"
+                ),
             ],
             [
-                KeyboardButton(text="❄️ Замороженная малина"),
+                KeyboardButton(
+                    text="❄️ Замороженная малина"
+                ),
             ],
             [
-                KeyboardButton(text="🥞 Варенье"),
+                KeyboardButton(
+                    text="🥞 Варенье"
+                ),
             ],
             [
-                KeyboardButton(text="⬅️ Назад"),
+                KeyboardButton(
+                    text="⬅️ Назад"
+                ),
             ],
         ],
         resize_keyboard=True,
@@ -307,7 +317,10 @@ def price_menu():
 
 def valid_date(value: str) -> bool:
     try:
-        datetime.strptime(value, "%d.%m.%Y")
+        datetime.strptime(
+            value,
+            "%d.%m.%Y"
+        )
         return True
     except ValueError:
         return False
@@ -373,7 +386,10 @@ def normalize_quantity(value: str):
 
     value = value.replace(",", ".")
 
-    if not re.fullmatch(r"\d+(?:\.\d+)?", value):
+    if not re.fullmatch(
+        r"\d+(?:\.\d+)?",
+        value
+    ):
         return None
 
     try:
@@ -489,7 +505,9 @@ async def open_services(
     )
 
 
-@dp.message(F.text == "⬅️ Назад")
+@dp.message(
+    F.text == "⬅️ Назад"
+)
 async def back_to_main(
     message: Message,
     state: FSMContext
@@ -567,11 +585,9 @@ async def product_date(
     )
 
     await message.answer(
-        "⚖️ Укажите количество <b>только в килограммах</b>.\n\n"
-        "Например:\n"
-        "<code>5</code>\n"
-        "<code>5 кг</code>\n"
-        "<code>5,5 кг</code>"
+        "⚖️ Укажите количество в килограммах "
+        "(можно в десятичных).\n\n"
+        "Например: <code>5</code>"
     )
 
 
@@ -587,9 +603,9 @@ async def product_quantity(
     if quantity is None:
         await message.answer(
             "❌ Не понял количество.\n\n"
-            "Укажите количество только в килограммах.\n"
-            "Например: <code>5 кг</code> или "
-            "<code>5,5 кг</code>."
+            "Укажите количество в килограммах "
+            "(можно в десятичных).\n\n"
+            "Например: <code>5</code>"
         )
         return
 
@@ -653,7 +669,10 @@ async def product_phone_contact(
 
     await message.answer(
         "💬 Есть ли комментарий к заказу?\n\n"
-        "Если комментария нет, напишите: <b>нет</b>",
+        "Также укажите приоритетный способ связи: "
+        "<b>переписка</b> или <b>телефон</b>.\n\n"
+        "Если комментария нет, напишите: <b>нет</b> "
+        "и укажите предпочтительный способ связи.",
         reply_markup=ReplyKeyboardRemove(),
     )
 
@@ -681,7 +700,10 @@ async def product_phone_text(
 
     await message.answer(
         "💬 Есть ли комментарий к заказу?\n\n"
-        "Если комментария нет, напишите: <b>нет</b>",
+        "Также укажите приоритетный способ связи: "
+        "<b>переписка</b> или <b>телефон</b>.\n\n"
+        "Если комментария нет, напишите: <b>нет</b> "
+        "и укажите предпочтительный способ связи.",
         reply_markup=ReplyKeyboardRemove(),
     )
 
@@ -709,7 +731,8 @@ async def product_comment(
         f"<b>Количество:</b> {data['quantity']}\n"
         f"<b>Имя:</b> {data['name']}\n"
         f"<b>Телефон:</b> {data['phone']}\n"
-        f"<b>Комментарий:</b> {data['comment']}\n\n"
+        f"<b>Комментарий и способ связи:</b> "
+        f"{data['comment']}\n\n"
         "Всё верно?"
     )
 
@@ -745,10 +768,6 @@ async def select_service(
         service_key=service_key,
         service_name=service["name"],
     )
-
-    # -----------------------------------------------------
-    # ДОМ — СНАЧАЛА ПРАВИЛА
-    # -----------------------------------------------------
 
     if service_key == "house":
 
@@ -787,7 +806,6 @@ async def select_service(
 
         return
 
-    # Остальные услуги
     await state.set_state(
         BookingState.date
     )
@@ -988,7 +1006,6 @@ async def booking_guests(
 
     data = await state.get_data()
 
-    # Максимум для дома — 6 человек
     if (
         data.get("service_key") == "house"
         and guests > 6
@@ -1004,7 +1021,6 @@ async def booking_guests(
         guests=guests
     )
 
-    # Дом -> дополнительная услуга
     if data.get("service_key") == "house":
 
         await state.set_state(
@@ -1019,7 +1035,6 @@ async def booking_guests(
 
         return
 
-    # Остальные услуги -> имя
     await state.set_state(
         BookingState.name
     )
@@ -1164,7 +1179,10 @@ async def booking_phone_contact(
 
     await message.answer(
         "💬 Есть ли комментарий?\n\n"
-        "Если комментария нет, напишите: <b>нет</b>",
+        "Также укажите приоритетный способ связи: "
+        "<b>переписка</b> или <b>телефон</b>.\n\n"
+        "Если комментария нет, напишите: <b>нет</b> "
+        "и укажите предпочтительный способ связи.",
         reply_markup=ReplyKeyboardRemove(),
     )
 
@@ -1196,7 +1214,10 @@ async def booking_phone_text(
 
     await message.answer(
         "💬 Есть ли комментарий?\n\n"
-        "Если комментария нет, напишите: <b>нет</b>",
+        "Также укажите приоритетный способ связи: "
+        "<b>переписка</b> или <b>телефон</b>.\n\n"
+        "Если комментария нет, напишите: <b>нет</b> "
+        "и укажите предпочтительный способ связи.",
         reply_markup=ReplyKeyboardRemove(),
     )
 
@@ -1265,7 +1286,8 @@ async def booking_comment(
     summary += (
         f"<b>Имя:</b> {data['name']}\n"
         f"<b>Телефон:</b> {data['phone']}\n"
-        f"<b>Комментарий:</b> {data['comment']}\n\n"
+        f"<b>Комментарий и способ связи:</b> "
+        f"{data['comment']}\n\n"
         "Всё верно?"
     )
 
@@ -1288,7 +1310,6 @@ async def confirm_request(
 ):
     data = await state.get_data()
 
-    # Защита от повторного нажатия
     if not data:
         await callback.answer(
             "Эта заявка уже обработана.",
@@ -1325,7 +1346,8 @@ async def confirm_request(
             f"<b>Количество:</b> {data['quantity']}\n"
             f"<b>Имя:</b> {data['name']}\n"
             f"<b>Телефон:</b> {data['phone']}\n"
-            f"<b>Комментарий:</b> {data['comment']}\n\n"
+            f"<b>Комментарий и способ связи:</b> "
+            f"{data['comment']}\n\n"
             f"<b>Telegram:</b> {username}\n"
             f"<b>Telegram ID:</b> "
             f"<code>{telegram_id}</code>"
@@ -1381,7 +1403,8 @@ async def confirm_request(
         admin_text += (
             f"<b>Имя:</b> {data['name']}\n"
             f"<b>Телефон:</b> {data['phone']}\n"
-            f"<b>Комментарий:</b> {data['comment']}\n\n"
+            f"<b>Комментарий и способ связи:</b> "
+            f"{data['comment']}\n\n"
             f"<b>Telegram:</b> {username}\n"
             f"<b>Telegram ID:</b> "
             f"<code>{telegram_id}</code>"
@@ -1401,12 +1424,10 @@ async def confirm_request(
         "Отправляем заявку..."
     )
 
-    # Отправляем администраторам
     success = await send_to_admins(
         admin_text
     )
 
-    # Очищаем состояние
     await state.clear()
 
     if success:
